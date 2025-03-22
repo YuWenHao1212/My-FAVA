@@ -1,9 +1,16 @@
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04
 
 # 更新 apt 並安裝 Python3.9、相關開發套件及 pip
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Taipei
+
 RUN apt-get update && \
+    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    apt-get install -y tzdata && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
     apt-get install -y python3.9 python3.9-dev python3-pip build-essential && \
-    rm -rf /var/lib/apt/lists/*  # 安裝 Python 3.9、開發頭文件及編譯工具（某些 pip 套件需要編譯），並清理 apt 快取
+    rm -rf /var/lib/apt/lists/*
+
 
 # 升級 pip 至最新版本（避免舊版 pip 潛在的相容性問題）
 RUN python3.9 -m pip install --upgrade pip
