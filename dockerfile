@@ -18,7 +18,7 @@ RUN apt-get update && \
 ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=$CUDA_HOME/bin:$PATH
 ENV FORCE_CUDA=1
-ENV TORCH_CUDA_ARCH_LIST="8.0"   # A100 (Ampere) 對應的計算能力
+ENV TORCH_CUDA_ARCH_LIST="8.0"
 
 # 安裝所有 FAVA 所需的 Python 套件（一次完成，避免多層浪費）
 # 先安裝 wheel、packaging 等基礎，再安裝 torch==2.0.1+cu118，最後安裝其餘依賴
