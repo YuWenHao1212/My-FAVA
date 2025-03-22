@@ -1,39 +1,39 @@
-# 使用 PyTorch 官方映像 (含 CUDA 11.8, cuDNN 8, PyTorch 2.0.1 GPU 版)
-FROM anibali/pytorch:2.0.1-cuda11.8-ubuntu22.04
+# 使用指定的 CUDA 11.8 開發版 Ubuntu 22.04 作為基底
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
-# 避免字元集問題
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV DEBIAN_FRONTEND=noninteractive
+# 環境變數：避免安裝過程中交互式介面干擾
+ARG DEBIAN_FRONTEND=noninteractive
 
-# 安裝 Python 3.9 及必要工具
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.9 python3.9-distutils python3.9-dev wget build-essential git && \
-    rm -rf /var/lib/apt/lists/*
+# 1. 安裝 Python 3.9 及相關工具
+#    Ubuntu 22.04 預設 Python3 為3.10，故使用 deadsnakes PPA 來安裝3.9
+RUN apt-get update && apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
+    apt-get install -y python3.9 python3.9-dev python3.9-distutils curl
 
-# 讓 python 指令預設執行 Python 3.9
-RUN ln -sf /usr/bin/python3.9 /usr/bin/python
+# 建立 python 指令的連結到 3.9版，並安裝最新 pip
+RUN ln -s /usr/bin/python3.9 /usr/bin/python && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.9
 
-# 安裝最新 pip (for Python 3.9)
-RUN wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py && \
-    python get-pip.py && \
-    rm get-pip.py
+# 安裝編譯必要套件（編譯C/C++擴充、PyTorch等可能需要）
+RUN apt-get install -y build-essential git cmake
 
-# 設定工作目錄
+# 2. 設定工作目錄並複製專案檔案
 WORKDIR /app
-
-# 複製 requirements.txt 並安裝套件 (已移除 torch 依賴)
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --upgrade pip && \
+COPY requirements.txt ./ 
+# 先安裝關鍵套件（如 PyTorch 與其 CUDA 相依），再安裝其餘 Python 相依
+# 使用 PyTorch 官方提供的額外索引來安裝 torch==2.0.1（CUDA 11.8 版）&#8203;:contentReference[oaicite:4]{index=4}
+RUN pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 \
+    --extra-index-url https://download.pytorch.org/whl/cu118 && \
     pip install --no-cache-dir -r requirements.txt
 
-# 安裝 spaCy 英文模型 (FAVA 需要)
+# 將其餘所有程式碼檔案複製進映像
+COPY . . 
+
+# 安裝 SpaCy 英文模型（供 FAVA 資料處理使用）
 RUN python -m spacy download en_core_web_sm
 
-# 複製專案檔案 (含 main.py、其他 FAVA 檔案)
-COPY . .
-
-# 對外暴露 FastAPI 服務埠
+# 3. 對外暴露 FastAPI 埠號（預設8000）
 EXPOSE 8000
 
-# 以 Uvicorn 啟動 FastAPI 應用
+# 4. 啟動 FastAPI 應用（使用 Uvicorn server）
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
