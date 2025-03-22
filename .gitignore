@@ -19,3 +19,7 @@ secrets.json
 # 系統檔案
 .DS_Store
 Thumbs.db
+
+# 系統檔案
+vast_SSH_Key
+vast SSHKey.pub

@@ -1,15 +1,19 @@
-# 使用 PyTorch 官方映像 (含 CUDA 11.8, cuDNN 8, PyTorch 2.0.1)
-FROM pytorch/pytorch:2.0.1-cuda11.8-cudnn8-devel
+# 使用 PyTorch 官方映像 (含 CUDA 11.8, cuDNN 8, PyTorch 2.0.1 GPU 版)
+FROM anibali/pytorch:2.0.1-cuda11.8-ubuntu22.04
 
-# 避免字符集問題
+# 避免字元集問題
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-# 更新套件庫並安裝必要工具 (若需要)
+# 安裝 Python 3.9 及必要工具
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.9-distutils wget build-essential git && \
+    python3.9 python3.9-distutils python3.9-dev wget build-essential git && \
     rm -rf /var/lib/apt/lists/*
 
-# 安裝 pip (若映像內沒預裝最新 pip)
+# 讓 python 指令預設執行 Python 3.9
+RUN ln -sf /usr/bin/python3.9 /usr/bin/python
+
+# 安裝最新 pip (for Python 3.9)
 RUN wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py && \
     python get-pip.py && \
     rm get-pip.py
