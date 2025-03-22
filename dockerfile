@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04  # 使用 NVIDIA 官方 CUDA 11.8 (含 cuDNN 8) 執行時映像，基於 Ubuntu 20.04
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04  # 使用 NVIDIA 官方 CUDA 11.8 映像
 
 # 更新 apt 並安裝 Python3.9、相關開發套件及 pip
 RUN apt-get update && \
