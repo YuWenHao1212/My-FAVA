@@ -21,3 +21,5 @@ vllm==0.2.1.post1
 # 新增以下套件
 fastapi==0.103.1
 python-dotenv==1.0.0
+
+test
