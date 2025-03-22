@@ -1,0 +1,21 @@
+# 環境變數
+.env
+.env.local
+.env.*.local
+
+# Python 相關
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.pytest_cache/
+
+# 其他可能的敏感資訊
+*.pem
+config.json
+secrets.json
+
+# 系統檔案
+.DS_Store
+Thumbs.db
